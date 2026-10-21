@@ -1,6 +1,6 @@
 # FocusHelper Task Board
 
-A simple task board with three columns: **Tasks**, **Meetings**, and **Backburner**. Add, edit, remove and move tasks (title, deadline, short description) with mouse, keyboard or touch.
+A simple task board with three columns: **Tasks**, **Meetings**, and **Backburner**. Add, edit, remove and move tasks (title, deadline, short description), then search, filter, prioritize, label, complete, archive, sort, and reorder them.
 
 ## Prerequisites
 
@@ -26,10 +26,15 @@ Open <http://127.0.0.1:5173>. The dev server (and `npm run preview`, port 4173) 
   - Keyboard: focus the grip handle, press Space or Enter to pick up, Arrow keys to choose a column, Space or Enter to drop, Escape to cancel.
   - Any input: the "Move to…" button on a card opens a menu of the other columns.
 - Tasks with a past deadline show an "Overdue" badge.
+- **Find tasks**: Search task titles and descriptions, or combine the column, deadline-state, priority, label, and active/archive filters.
+- **Daily views**: Open **Due today** or **Upcoming** to focus on tasks across the existing three columns.
+- **Organize**: Set a low, medium, or high priority and add optional labels in the task editor. Sort by deadline, creation date, or title; custom order remains saved separately.
+- **Complete / Archive**: Mark tasks complete independently of archiving. Archived tasks are hidden by default; select Archived in the status filter to restore them.
+- **Reorder**: In Custom order, use the task grip to reorder within a column by mouse, touch long-press, or keyboard (Space/Enter, Up/Down, Space/Enter; Escape cancels). Reordering is preserved across reloads.
 
 ## Your data
 
-Tasks are stored in your browser's `localStorage` (key `focushelper.board.v1`) on this machine only. The data is not encrypted, backed up, or synced across browsers or devices; clearing site data deletes it. The app makes no network requests and sends no telemetry.
+Tasks are stored in your browser's `localStorage` (key `focushelper.board.v1`) on this machine only. Existing board data is migrated locally when the app is upgraded. The data is not encrypted, backed up, or synced across browsers or devices; clearing site data deletes it. The app makes no network requests and sends no telemetry.
 
 ## Scripts
 

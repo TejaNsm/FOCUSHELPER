@@ -31,7 +31,22 @@ describe('TaskDialog (add)', () => {
     await user.click(screen.getByRole('button', { name: 'Add task' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
-      { title: 'Pay rent', deadline: '2026-11-01', description: 'monthly' },
+      { title: 'Pay rent', deadline: '2026-11-01', description: 'monthly', priority: null, labels: [] },
+      state,
+    )
+  })
+
+  it('submits priority and trimmed labels', async () => {
+    const onSubmit = vi.fn()
+    render(<TaskDialog state={state} onClose={() => {}} onSubmit={onSubmit} />)
+    const user = userEvent.setup()
+    await user.type(screen.getByLabelText(/title/i), 'Plan')
+    await user.selectOptions(screen.getByLabelText('Priority'), 'high')
+    await user.type(screen.getByLabelText('Labels'), ' Work ')
+    await user.click(screen.getByRole('button', { name: 'Add label' }))
+    await user.click(screen.getByRole('button', { name: 'Add task' }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      { title: 'Plan', deadline: null, description: '', priority: 'high', labels: ['Work'] },
       state,
     )
   })

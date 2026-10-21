@@ -1,5 +1,6 @@
-import { useDraggable } from '@dnd-kit/core'
-import { AlertCircle, Calendar, GripVertical, MoveRight, Pencil, Trash2 } from 'lucide-react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { AlertCircle, Archive, Calendar, Check, GripVertical, MoveRight, Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +18,9 @@ interface TaskCardProps {
   onEdit: (task: Task) => void
   onDelete: (task: Task) => void
   onMove: (task: Task, column: ColumnId) => void
+  onComplete: (task: Task, completed: boolean) => void
+  onArchive: (task: Task, archived: boolean) => void
+  reorderEnabled: boolean
 }
 
 export function TaskCardBody({ task }: { task: Task }) {
@@ -42,13 +46,31 @@ export function TaskCardBody({ task }: { task: Task }) {
       {task.description && (
         <p className="mt-2 whitespace-pre-wrap wrap-anywhere text-sm">{task.description}</p>
       )}
+      {(task.priority || task.labels.length > 0 || task.completed || task.archived) && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {task.priority && <Badge variant="outline">Priority: {task.priority}</Badge>}
+          {task.labels.map((label) => <Badge key={label} variant="secondary">{label}</Badge>)}
+          {task.completed && <Badge variant="outline">Completed</Badge>}
+          {task.archived && <Badge variant="outline">Archived</Badge>}
+        </div>
+      )}
     </div>
   )
 }
 
-export function TaskCard({ task, onEdit, onDelete, onMove }: TaskCardProps) {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
+export function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  onMove,
+  onComplete,
+  onArchive,
+  reorderEnabled,
+}: TaskCardProps) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging, transform, transition } = useSortable({
     id: task.id,
+    data: { column: task.column },
+    disabled: !reorderEnabled,
   })
 
   return (
@@ -58,13 +80,15 @@ export function TaskCard({ task, onEdit, onDelete, onMove }: TaskCardProps) {
         'retro-card flex gap-1 rounded-md bg-card p-2 text-card-foreground',
         isDragging && 'opacity-40',
       )}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       <Button
         ref={setActivatorNodeRef}
         variant="ghost"
         size="icon"
         className="size-11 shrink-0 cursor-grab touch-none"
-        aria-label={`Drag ${task.title}`}
+        aria-label={`${reorderEnabled ? 'Reorder' : 'Reorder available in custom order for'} ${task.title}`}
+        disabled={!reorderEnabled}
         {...attributes}
         {...listeners}
       >
@@ -74,6 +98,16 @@ export function TaskCard({ task, onEdit, onDelete, onMove }: TaskCardProps) {
       <TaskCardBody task={task} />
 
       <div className="flex shrink-0 flex-col">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-11"
+          aria-label={`${task.completed ? 'Mark incomplete' : 'Mark complete'}: ${task.title}`}
+          aria-pressed={task.completed}
+          onClick={() => onComplete(task, !task.completed)}
+        >
+          <Check aria-hidden="true" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
@@ -103,6 +137,15 @@ export function TaskCard({ task, onEdit, onDelete, onMove }: TaskCardProps) {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-11"
+          aria-label={`${task.archived ? 'Restore' : 'Archive'} ${task.title}`}
+          onClick={() => onArchive(task, !task.archived)}
+        >
+          {task.archived ? <RotateCcw aria-hidden="true" /> : <Archive aria-hidden="true" />}
+        </Button>
         <Button
           variant="ghost"
           size="icon"

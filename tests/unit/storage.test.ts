@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createTask } from '@/lib/board'
-import { STORAGE_KEY, loadTasks, saveTasks } from '@/lib/storage'
+import { createTask, type Task } from '@/lib/board'
+import { STORAGE_KEY, loadBoard, loadTasks, saveTasks } from '@/lib/storage'
 
 describe('storage', () => {
   it('round-trips tasks', () => {
@@ -16,21 +16,52 @@ describe('storage', () => {
   it('returns empty on corrupt JSON', () => {
     localStorage.setItem(STORAGE_KEY, '{nope')
     expect(loadTasks()).toEqual([])
+    expect(loadBoard().writable).toBe(false)
   })
 
-  it('returns empty on wrong version or shape', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, tasks: [] }))
-    expect(loadTasks()).toEqual([])
+  it('does not overwrite unsupported versions or malformed documents', () => {
+    const unsupported = JSON.stringify({ version: 9, tasks: [] })
+    localStorage.setItem(STORAGE_KEY, unsupported)
+    expect(loadBoard()).toMatchObject({ writable: false, error: expect.any(String) })
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(unsupported)
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, tasks: 'x' }))
     expect(loadTasks()).toEqual([])
+    expect(loadBoard().writable).toBe(false)
   })
 
-  it('drops invalid entries but keeps valid ones', () => {
-    const good = createTask({ title: 'Good', deadline: null, description: '' }, 'tasks')
+  it('migrates legacy tasks and assigns order by creation time with stable ties', () => {
+    const newest = createTask({ title: 'Newest', deadline: null, description: '' }, 'tasks', 20)
+    const oldest = createTask({ title: 'Oldest', deadline: null, description: '' }, 'tasks', 10)
+    const tied = createTask({ title: 'Tied', deadline: null, description: '' }, 'tasks', 10)
+    const legacyTask = (task: Task) => ({
+      id: task.id,
+      title: task.title,
+      deadline: task.deadline,
+      description: task.description,
+      column: task.column,
+      createdAt: task.createdAt,
+    })
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ version: 1, tasks: [good, { id: 1 }, { ...good, column: 'bogus' }] }),
+      JSON.stringify({
+        version: 1,
+        tasks: [legacyTask(newest), legacyTask(oldest), legacyTask(tied), { id: 1 }],
+      }),
     )
-    expect(loadTasks()).toEqual([good])
+    const migrated = loadBoard()
+    expect(migrated.writable).toBe(true)
+    expect(migrated.tasks.map((task) => [task.title, task.position])).toEqual([
+      ['Newest', 2],
+      ['Oldest', 0],
+      ['Tied', 1],
+    ])
+    expect(migrated.tasks[0]).toMatchObject({ priority: null, labels: [], completed: false, archived: false })
+  })
+
+  it('round-trips version-2 task fields', () => {
+    const task = { ...createTask({ title: 'Tagged', deadline: null, description: '' }, 'tasks'), priority: 'high' as const, labels: ['Work'], completed: true, archived: false, position: 2 }
+    saveTasks([task])
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}').version).toBe(2)
+    expect(loadTasks()).toEqual([task])
   })
 })

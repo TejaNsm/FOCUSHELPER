@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('US3.1 mouse drag moves task, details intact, persists', async ({ page }) => {
-  const handle = page.getByRole('button', { name: 'Drag Pay rent' })
+  const handle = page.getByRole('button', { name: 'Reorder Pay rent' })
   const from = (await handle.boundingBox())!
   const to = (await column(page, 'backburner').boundingBox())!
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2)
@@ -25,7 +25,7 @@ test('US3.1 mouse drag moves task, details intact, persists', async ({ page }) =
 })
 
 test('US3.3 keyboard drag moves task between columns', async ({ page }) => {
-  await page.getByRole('button', { name: 'Drag Pay rent' }).focus()
+  await page.getByRole('button', { name: 'Reorder Pay rent' }).focus()
   await page.keyboard.press('Space')
   await page.waitForTimeout(100) // dnd-kit attaches its key listener just after pickup
   await page.keyboard.press('ArrowRight')
@@ -33,7 +33,7 @@ test('US3.3 keyboard drag moves task between columns', async ({ page }) => {
   await page.keyboard.press('Space')
   await expect(column(page, 'backburner').getByText('Pay rent')).toBeVisible()
 
-  await page.getByRole('button', { name: 'Drag Pay rent' }).focus()
+  await page.getByRole('button', { name: 'Reorder Pay rent' }).focus()
   await page.keyboard.press('Space')
   await page.waitForTimeout(100) // dnd-kit attaches its key listener just after pickup
   await page.keyboard.press('ArrowLeft')
@@ -42,7 +42,7 @@ test('US3.3 keyboard drag moves task between columns', async ({ page }) => {
 })
 
 test('keyboard drag can be cancelled with Escape', async ({ page }) => {
-  await page.getByRole('button', { name: 'Drag Pay rent' }).focus()
+  await page.getByRole('button', { name: 'Reorder Pay rent' }).focus()
   await page.keyboard.press('Space')
   await page.waitForTimeout(100) // dnd-kit attaches its key listener just after pickup
   await page.keyboard.press('ArrowRight')
@@ -62,7 +62,7 @@ test('Move to… menu moves a task with the keyboard only', async ({ page }) => 
 })
 
 test('dropping a task in its own column changes nothing', async ({ page }) => {
-  const handle = page.getByRole('button', { name: 'Drag Pay rent' })
+  const handle = page.getByRole('button', { name: 'Reorder Pay rent' })
   const from = (await handle.boundingBox())!
   const own = (await column(page, 'tasks').boundingBox())!
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2)

@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TaskCard } from '@/components/TaskCard'
@@ -13,9 +14,25 @@ interface ColumnProps {
   onEdit: (task: Task) => void
   onDelete: (task: Task) => void
   onMove: (task: Task, column: ColumnId) => void
+  onComplete: (task: Task, completed: boolean) => void
+  onArchive: (task: Task, archived: boolean) => void
+  reorderEnabled: boolean
+  emptyMessage?: string
 }
 
-export function Column({ id, label, tasks, onAdd, onEdit, onDelete, onMove }: ColumnProps) {
+export function Column({
+  id,
+  label,
+  tasks,
+  onAdd,
+  onEdit,
+  onDelete,
+  onMove,
+  onComplete,
+  onArchive,
+  reorderEnabled,
+  emptyMessage,
+}: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id })
   const headingId = `column-${id}-heading`
 
@@ -44,14 +61,25 @@ export function Column({ id, label, tasks, onAdd, onEdit, onDelete, onMove }: Co
 
       {tasks.length === 0 ? (
         <p className="rounded-md border-2 border-dashed border-[var(--ink)] p-4 text-center text-sm text-muted-foreground">
-          No items yet. Add one or drag one here.
+          {emptyMessage ?? 'No items yet. Add one or drag one here.'}
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} onMove={onMove} />
-          ))}
-        </ul>
+        <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
+          <ul className="flex flex-col gap-2">
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onMove={onMove}
+                onComplete={onComplete}
+                onArchive={onArchive}
+                reorderEnabled={reorderEnabled}
+              />
+            ))}
+          </ul>
+        </SortableContext>
       )}
     </section>
   )

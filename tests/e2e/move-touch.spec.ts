@@ -17,11 +17,11 @@ test.beforeEach(async ({ page }) => {
 
 test('US3 touch: long-press then drag moves a task', async ({ page }) => {
   const touch = await makeTouch(page)
-  const handle = (await page.getByRole('button', { name: 'Drag Pay rent' }).boundingBox())!
+  const handle = (await page.getByRole('button', { name: 'Reorder Pay rent' }).boundingBox())!
   const sx = handle.x + handle.width / 2
   await column(page, 'meetings').scrollIntoViewIfNeeded()
   const target = (await column(page, 'meetings').boundingBox())!
-  const hx = (await page.getByRole('button', { name: 'Drag Pay rent' }).boundingBox())!
+  const hx = (await page.getByRole('button', { name: 'Reorder Pay rent' }).boundingBox())!
 
   await touch('touchStart', hx.x + hx.width / 2, hx.y + hx.height / 2)
   await page.waitForTimeout(350)
@@ -39,7 +39,7 @@ test('US3 touch: long-press then drag moves a task', async ({ page }) => {
 
 test('US3 touch: quick swipe does not move the task', async ({ page }) => {
   const touch = await makeTouch(page)
-  const h = (await page.getByRole('button', { name: 'Drag Pay rent' }).boundingBox())!
+  const h = (await page.getByRole('button', { name: 'Reorder Pay rent' }).boundingBox())!
   const x = h.x + h.width / 2
   const y = h.y + h.height / 2
   await touch('touchStart', x, y)
