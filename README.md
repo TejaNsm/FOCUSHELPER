@@ -36,6 +36,17 @@ Open <http://127.0.0.1:5173>. The dev server (and `npm run preview`, port 4173) 
 
 Tasks are stored in your browser's `localStorage` (key `focushelper.board.v1`) on this machine only. Existing board data is migrated locally when the app is upgraded. The data is not encrypted, backed up, or synced across browsers or devices; clearing site data deletes it. The app makes no network requests and sends no telemetry.
 
+## Personal Finance
+
+Open **Personal Finance** from the in-app workspace tabs. The Task Board stays available and uses separate storage.
+
+- Create accounts and income or expense categories. Enter income, expenses, refunds, and transfers; transfers do not count as income or spending.
+- Use **Overview**, **Transactions**, **Accounts**, **Budget**, **Goals**, **Loans & Debt**, and **Reports** to review locally entered information. Amounts default to Indian Rupees (INR); account, goal, budget, and debt records keep their currency.
+- Recurring income and bills are plans. They do not change balances until you record an occurrence.
+- Finance backups include finance data only. Import validates the backup and asks before replacing saved finance data.
+
+Finance data is stored locally in this browser. It is not encrypted, is not backed up automatically, and can be lost if browser data is cleared. Export a backup if you need a separate copy. FocusHelper does not connect to banks or provide professional financial advice.
+
 ## Scripts
 
 | Command | Purpose |
